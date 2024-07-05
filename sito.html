@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToxPortal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>ToxPortal</h1>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Enter name to search">
+        <button type="submit">Search</button>
+    </form>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>NOAEL</th>
+            <th>LD50</th>
+        </tr>
+        {% for result in results %}
+        <tr>
+            <td>{{ result['name'] }}</td>
+            <td>{{ result['noael'] }}</td>
+            <td>{{ result['ld50'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
