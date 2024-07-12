@@ -2,9 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import PyPDF2
 import re
-import string
-from collections import Counter
-import pandas as pd
 
 
 # PER IL PDF, CONTROLLARE IL NOME "PUBLISHED REPORT" E POI PRENDERE IL LINK.
@@ -12,21 +9,29 @@ import pandas as pd
 
 suffisso_url = "https://cir-reports.cir-safety.org/"
 
-response = requests.get(suffisso_url + "FetchCIRReports/")
-response.raise_for_status()
-documento = response.json()["results"]
+response1 = requests.get(suffisso_url + "FetchCIRReports/")
+response1.raise_for_status()
+cookie = response1.json()["pagingcookie"] + "&page=2"
+response2 = requests.get(response1.url + "?&pagingcookie=" + cookie)
 
-nomi = []
+documento1 = response1.json()["results"]
+documento2 = response2.json()["results"]
 
-for k in range(len(documento)):
-    nomi.append(documento[k]["pcpc_ingredientname"])
+ingredienti_cir, check, nomi = [], [], []
+
+for el in documento1 + documento2:
+    if el["pcpc_ingredientname"] not in check:
+        ingredienti_cir.append(el)
+        nomi.append(el["pcpc_ingredientname"])
+        check.append(el["pcpc_ingredientname"])
+
 
 ingrediente_richiesto = input(
     "Inserire il nome dell'ingrediente da trovare: ")
 
 ingrediente_trovato = None
 
-for record in documento:
+for record in ingredienti_cir:
     if ingrediente_richiesto == record["pcpc_ingredientname"]:
         ingrediente_trovato = record
 
@@ -39,7 +44,8 @@ response2.raise_for_status()
 html_contenuto = response2.text
 soup = BeautifulSoup(html_contenuto, "lxml")
 
-links = soup.find_all('a', href=True)
+table = soup.find('table')
+links = table.find_all('a', href=True)
 
 for link in links:
     if not link['href'].startswith('javascript:alert'):
@@ -60,42 +66,36 @@ if response3.status_code == 200:
     full_text = ''
     for page_num in range(len(reader.pages)):
         page = reader.pages[page_num]
+        page_text = page.extract_text().replace('\n', ' ')
         full_text += page.extract_text()
+    
+    pdf_file.close()
 
 
-def estrai_numero_moda(da_testo):
-    numeri = [int(s) for s in re.findall(r'\b\d+\b', da_testo)]
-    if numeri:
-        moda_numero = Counter(numeri).most_common(1)[0][0]
-        return moda_numero
-    return None
+def trova_valori(testo, indice):
+    risultati = []
+    pattern = rf'{indice}\D*(\d+)\s*(mg|kg)\D*(\d+)(\D{{1,10}})'  # Pattern regex base
 
-# Codice esistente
-keyword = "NOAEL"
-pattern = re.compile(rf'(?<=\b{re.escape(keyword)}\b)')
-risultati = []
+    for match in re.finditer(pattern, testo, flags=re.IGNORECASE):
+        # Estrazione valore, parola successiva e contesto
+        valore_numero = match.group(1)
+        parola_dopo = match.group(4).strip()
+        unione_valori = valore_numero + " " + parola_dopo
+        contesto = estrai_contesto(testo, match.start(), match.end(), valore_numero)
 
-for match in pattern.finditer(full_text):
-    index = match.start()
-    start_index = max(0, index - 150)
-    end_index = min(len(full_text), index + len(keyword) + 150)
+        # Aggiungi risultato alla lista
+        risultati.append((unione_valori, contesto))
 
-    risultati.append(full_text[start_index:end_index])
+    return risultati
 
-# Filtraggio dei risultati
-risultati_filtrati = [r for r in risultati if "mg/kg/d" in r and not any(nome in r for nome in nomi)]
+def estrai_contesto(testo, inizio, fine, valore):
+    # Recupera 10 parole prima e dopo l'indice
+    prima = testo[max(0, inizio - 100):inizio].split()[-10:]
+    dopo = testo[fine: fine + 100].split()[:10]
 
-# Estrazione del numero con moda maggiore dai risultati filtrati
-numeri_moda = [estrai_numero_moda(r) for r in risultati_filtrati]
-numero_moda_maggiore = max(filter(None, numeri_moda), key=numeri_moda.count) if numeri_moda else None
+    # Unisci le parole con spazi e ritorna il contesto
+    contesto = " ".join(prima + [valore] + dopo)
+    return contesto.strip()
 
-print(f"Il numero con moda maggiore tra i testi filtrati è: {numero_moda_maggiore}")
 
-if numero_moda_maggiore:
-    noael  = str(numero_moda_maggiore) + " mg/kg/day"
-else:
-    noael = str(numero_moda_maggiore)
-
-ris_finale = pd.DataFrame({"Nome Cercato": [ingrediente_trovato["pcpc_ingredientname"]], 
-                           "NOAEL CIR": [noael], 
-                           "Source PDF": [response3.url]}, index=[0])
+risultati_noael = trova_valori(full_text, "NOAEL")
