@@ -1,2 +1,1 @@
-# import streamlit as st
-# import pandas as pd
+In questo lavoro ci è stata commissionata la creazione di un portale che raccolga gli indici di tossicità (NOAEL e LD-50) di un elenco di molecole nel campo della cosmetica. Questi dati si possono ritrovare dal  sodel del CIR() e sul sito di ECHA.  
