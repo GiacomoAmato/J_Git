@@ -3,7 +3,7 @@ import pandas as pd
 
 # Percorso del dataset
 #inserire il percorso dove si è scaricato Dataset_ESFA.csv
-data2_path = 
+data2_path = Dataset_ESFA.csv
 # Creare un DataFrame per il primo dataset di prova per imitare un ipotetico DataFrame
 # estratto dal sito del CIR
 data1 = pd.DataFrame({
