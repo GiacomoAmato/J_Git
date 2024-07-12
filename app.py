@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Percorso del dataset
-data2_path = 'C:/Users/GiacomoAmato/OneDrive - ITS Angelo Rizzoli/Desktop/Dataset_ESFA.csv'
-
+data2_path = #inserire il percorso dove si è scaricato 
 # Creare un DataFrame per il primo dataset
 data1 = pd.DataFrame({
     'nome': ['Molecola1', 'Molecola2', 'Molecola3'],
