@@ -3,7 +3,7 @@ import pandas as pd
 
 # Percorso del dataset
 #inserire il percorso dove si è scaricato Dataset_ESFA.csv
-data2_path = Users/GiacomoAmato/J_Git/Dataset_ESFA.csv
+
 # Creare un DataFrame per il primo dataset di prova per imitare un ipotetico DataFrame
 # estratto dal sito del CIR
 data1 = pd.DataFrame({
@@ -13,7 +13,7 @@ data1 = pd.DataFrame({
 })
 
 # Caricare il secondo dataset
-data2 = pd.read_csv(data2_path)
+data2 = pd.read_csv('Dataset_ESFA.csv')
 
 # Funzione per cercare le molecole
 def search_molecule(data, query):
