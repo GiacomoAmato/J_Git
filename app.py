@@ -3,7 +3,8 @@ import pandas as pd
 
 # Percorso del dataset
 data2_path = #inserire il percorso dove si è scaricato Dataset_ESFA.csv
-# Creare un DataFrame per il primo dataset di prova 
+# Creare un DataFrame per il primo dataset di prova per imitare un ipotetico DataFrame
+# estratto dal sito del CIR
 data1 = pd.DataFrame({
     'nome': ['Molecola1', 'Molecola2', 'Molecola3'],
     'dato_numerico': [123, 456, 789],
