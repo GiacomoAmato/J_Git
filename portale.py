@@ -6,12 +6,7 @@ import pandas as pd
 
 # Creare un DataFrame per il primo dataset di prova per imitare un ipotetico DataFrame
 # estratto dal sito del CIR
-data1 = pd.DataFrame({
-    'nome': ['Molecola1', 'Molecola2', 'Molecola3'],
-    'dato_numerico': [123, 456, 789],
-    'link': ['http://example.com/1', 'http://example.com/2', 'http://example.com/3']
-})
-
+data1 = pd.read_csv('Dataset_CIR.csv')
 # Caricare il secondo dataset
 data2 = pd.read_csv('Dataset_ESFA.csv')
 
@@ -67,7 +62,7 @@ dataset_choice = st.selectbox("Scegli il dataset:", ["CIR", "ESFA"])
 
 # Imposta la colonna e i dati in base alla selezione
 if dataset_choice == "CIR":
-    column_name = 'nome'
+    column_name = 'Ingredienti'
     data = data1
 else:
     column_name = 'Ingredient'
@@ -85,9 +80,10 @@ if query:
         results = search_molecule(data1, query)
         if not results.empty:
             for idx, row in results.iterrows():
-                st.markdown(f"<div class='result'><strong>Molecola:</strong> {row['nome']}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='result'><strong>Dato Numerico:</strong> {row['dato_numerico']}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='result'><strong>Link:</strong> <a href='{row['link']}' target='_blank'>Link</a></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='result'><strong>Molecola:</strong> {row['Ingredienti']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='result'><strong>Dato Numerico:</strong> {row['NOAEL']}</div>", unsafe_allow_html=True)
+                #st.markdown(f"<div class='result'><strong>Contesto:</strong> {row['Contesto']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='result'><strong>Link:</strong> <a href='{row['Link PDF']}' target='_blank'>Link</a></div>", unsafe_allow_html=True)
         else:
             st.write(f"<div class='result'>Nessun risultato trovato per '{query}'</div>", unsafe_allow_html=True)
     else:
